@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  order-service:
+    image: order-service
+    ports:
+      - 8891:8891
+    container_name: order-service
+   
+  payment-service:
+    image: payment-service
+    ports:
+      - 8893:8893
+    container_name: payment-service
+    depends_on:
+      - order-service
+    
+  orchestrator-service:
+    image: orchestrator-service
+    ports:
+      - 8761:8761
+    container_name: orchestrator-service
+    depends_on:
+      - order-service
+  
+  inventory-service:
+    image: inventory-service
+    ports:
+      - 8894:8894
+    container_name: inventory-service
+    depends_on:
+      - order-service
+   
+  zookeeper1:
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
+    container_name: zookeeper
+
+  kafka1:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPIC: "my_topic:1:3"
